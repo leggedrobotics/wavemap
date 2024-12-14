@@ -12,4 +12,4 @@ from ._pywavemap_bindings import Pipeline
 from ._pywavemap_bindings import RaycastingRenderer
 
 # Binding submodules
-from ._pywavemap_bindings import logging, param, convert
+from ._pywavemap_bindings import logging, param, convert, edit

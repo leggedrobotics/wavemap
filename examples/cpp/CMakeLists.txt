@@ -31,7 +31,8 @@ else ()
 endif ()
 
 # Add each set of examples
+add_subdirectory(edit)
+add_subdirectory(conversions)
 add_subdirectory(io)
 add_subdirectory(mapping)
 add_subdirectory(queries)
-add_subdirectory(planning)
