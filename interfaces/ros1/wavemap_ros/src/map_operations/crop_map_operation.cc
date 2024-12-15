@@ -60,7 +60,7 @@ void CropMapOperation::run(bool force_run) {
   const bool use_most_recent_transform = config_.tf_time_offset < 0.f;
   const ros::Time timestamp =
       use_most_recent_transform
-          ? ros::Time::UNINITIALIZED
+          ? ros::Time()
           : current_time - ros::Duration(config_.tf_time_offset);
   const auto T_W_B = transformer_->lookupTransform(
       world_frame_, config_.body_frame, timestamp);
