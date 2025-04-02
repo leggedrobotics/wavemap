@@ -38,14 +38,26 @@ void RaycastingRenderer::renderPatch(const MapT& map,
     const Point3D C_end_point =
         projection_model_->sensorToCartesian({image_xy, max_range_});
     const Point3D W_end_point = T_W_C * C_end_point;
-    const auto d_start_collision = raycast::first_collision_distance(
-        query_accelerator, W_start_point, W_end_point,
-        log_odds_occupancy_threshold_);
-    if (d_start_collision) {
-      depth_pixel = d_start_collision.value();
+    //const auto d_start_collision = raycast::first_collision_distance(
+    //    query_accelerator, W_start_point, W_end_point,
+    //    log_odds_occupancy_threshold_);
+    //if (d_start_collision) {
+    //  depth_pixel = d_start_collision.value();
+    //}
+
+    const auto colliding_index = raycast::first_collision_index<const MapT>(
+        map, W_start_point, W_end_point, log_odds_occupancy_threshold_);
+    if (colliding_index) {
+      const FloatingPoint min_cell_width = map.getMinCellWidth();
+      const Point3D W_voxel_center =
+          convert::indexToCenterPoint(colliding_index.value(), min_cell_width);
+      const Point3D C_voxel_center = T_W_C.inverse() * W_voxel_center;
+      depth_pixel = projection_model_->cartesianToSensorZ(C_voxel_center);
     }
   }
 }
+
+
 
 const Image<>& RaycastingRenderer::render(const Transformation3D& T_W_C) {
   depth_image_.resetToInitialValue();
