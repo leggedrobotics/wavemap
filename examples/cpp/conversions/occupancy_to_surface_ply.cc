@@ -22,9 +22,9 @@ private:
   mutable std::optional<QueryAccelerator<HashedWaveletOctree>>
       query_accelerator_;
 
-  FloatingPoint surface_occupancy_threshold_ = 0.0f;  // You might want to set an appropriate value
+  FloatingPoint surface_occupancy_threshold_ = 0.15f;  // You might want to set an appropriate value
 
-  FloatingPoint unknown_occupancy_threshold_ = 1e-4f;
+  FloatingPoint unknown_occupancy_threshold_ = 0.1f;
 public:
     bool isUnknown(FloatingPoint log_odds) const {
         unknown_occupancy_threshold_;
