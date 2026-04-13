@@ -1,6 +1,7 @@
 #include "wavemap_ros/map_operations/map_ros_operation_factory.h"
 
 #include "wavemap_ros/map_operations/crop_map_operation.h"
+#include "wavemap_ros/map_operations/publish_esdf_operation.h"
 #include "wavemap_ros/map_operations/publish_map_operation.h"
 #include "wavemap_ros/map_operations/publish_pointcloud_operation.h"
 
@@ -49,6 +50,15 @@ std::unique_ptr<MapOperationBase> MapRosOperationFactory::create(
             nh_private);
       } else {
         ROS_ERROR("Publish pointcloud operation config could not be loaded.");
+        return nullptr;
+      }
+    case MapRosOperationType::kPublishEsdf:
+      if (const auto config = PublishEsdfOperationConfig::from(params); config) {
+        return std::make_unique<PublishEsdfOperation>(
+            config.value(), std::move(occupancy_map), std::move(world_frame),
+            nh_private);
+      } else {
+        ROS_ERROR("Publish ESDF operation config could not be loaded.");
         return nullptr;
       }
     case MapRosOperationType::kCropMap:

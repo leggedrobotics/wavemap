@@ -156,7 +156,10 @@ void rosMsgToMap(const wavemap_msgs::HashedBlocks& msg,
         });
   } else {
     // Otherwise create a new map
-    map = std::make_shared<HashedBlocks>(config);
+    // NOTE: default_value is set to max_log_odds (= max_distance for SDF maps)
+    // so that cells not reached by propagation return the correct max value
+    // instead of 0 (which would be indistinguishable from the obstacle surface).
+    map = std::make_shared<HashedBlocks>(config, config.max_log_odds);
   }
 
   // Deserialize all blocks

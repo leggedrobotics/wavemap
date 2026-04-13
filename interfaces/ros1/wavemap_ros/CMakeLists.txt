@@ -39,6 +39,7 @@ add_library(${PROJECT_NAME}
     src/map_operations/crop_map_operation.cc
     src/map_operations/map_ros_operation_factory.cc
     src/map_operations/publish_map_operation.cc
+    src/map_operations/publish_esdf_operation.cc
     src/map_operations/publish_pointcloud_operation.cc
     src/utils/pointcloud_undistorter.cc
     src/utils/ros_logging_level.cc
