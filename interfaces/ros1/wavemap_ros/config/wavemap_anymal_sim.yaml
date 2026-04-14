@@ -188,6 +188,50 @@ measurement_integrators:
       scaling_free: 0.2
       scaling_occupied: 0.4
 
+  livox_lidar_left:
+    projection_model:
+      type: spherical_projector
+      elevation:
+        num_cells: 32
+        min_angle: { degrees: -7.0 }
+        max_angle: { degrees: 52.0 }
+      azimuth:
+        num_cells: 512
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.05 }
+      range_sigma: { meters: 0.08 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.5 }
+      max_range: { meters: 4.0 }
+
+  livox_lidar_right:
+    projection_model:
+      type: spherical_projector
+      elevation:
+        num_cells: 32
+        min_angle: { degrees: -7.0 }
+        max_angle: { degrees: 52.0 }
+      azimuth:
+        num_cells: 512
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.05 }
+      range_sigma: { meters: 0.08 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.5 } # Data can be recorded, but precision is only guaranteed from 0.2m+.
+      max_range: { meters: 4.0 }
+
 inputs:
   - type: depth_image_topic
     topic_name: "/depth_camera_front_upper/depth/image_rect_raw"
@@ -228,3 +272,19 @@ inputs:
     measurement_integrator_names:
       - depth_camera_right_short_range
       - depth_camera_right_medium_range
+
+  - type: pointcloud_topic
+    topic_name: "/livox/lidar_left/self_filtered" # "/livox/lidar_left"
+    topic_type: PointCloud2
+    measurement_integrator_names: livox_lidar_left
+    undistort_motion: false
+    topic_queue_length: 10
+    max_wait_for_pose: { seconds: 1.0 }
+
+  - type: pointcloud_topic
+    topic_name: "/livox/lidar_right/self_filtered" # "/livox/lidar_right" 
+    topic_type: PointCloud2
+    measurement_integrator_names: livox_lidar_right
+    undistort_motion: false
+    topic_queue_length: 10
+    max_wait_for_pose: { seconds: 1.0 }
