@@ -134,9 +134,9 @@ void QuasiEuclideanSDFGenerator::propagate(
         const FloatingPoint neighbor_occupancy =
             occupancy_query_accelerator.getCellValue(neighbor_index);
         // Never initialize or update unknown cells
-        if (classifier_.is(neighbor_occupancy, Occupancy::kUnobserved)) {
-          continue;
-        }
+        // if (classifier_.is(neighbor_occupancy, Occupancy::kUnobserved)) {
+        //   continue;
+        // }
         // Set the sign
         if (classifier_.is(neighbor_occupancy, Occupancy::kOccupied)) {
           neighbor_sdf = -sdf.getDefaultValue();

@@ -141,10 +141,10 @@ void FullEuclideanSDFGenerator::propagate(
       if (neighbor_uninitialized) {
         const FloatingPoint neighbor_occupancy =
             occupancy_query_accelerator.getCellValue(neighbor_index);
-        // Never initialize or update unknown cells
-        if (classifier_.is(neighbor_occupancy, Occupancy::kUnobserved)) {
-          continue;
-        }
+        // // Never initialize or update unknown cells
+        // if (classifier_.is(neighbor_occupancy, Occupancy::kUnobserved)) {
+        //   continue;
+        // }
         // Set the sign
         if (classifier_.is(neighbor_occupancy, Occupancy::kOccupied)) {
           neighbor_sdf_value = -sdf.getDefaultValue().distance;
