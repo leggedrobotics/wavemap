@@ -153,7 +153,12 @@ void QuasiEuclideanSDFGenerator::propagate(
           //       obtain the unsigned neighbor distance. Whereas when moving
           //       across the surface, the df_value and offset have opposite
           //       signs and reduce each other instead.
-          DCHECK_LE(df_value, half_max_neighbor_distance_offset);
+          // Skip if df_value would yield a non-positive candidate distance
+          // (can happen when unobserved cells are propagated with large
+          // distances before reaching an adjacent occupied cell).
+          if (df_value >= neighbor_distance_offsets[neighbor_idx]) {
+            continue;
+          }
           neighbor_df_candidate =
               neighbor_distance_offsets[neighbor_idx] - df_value;
         } else {
