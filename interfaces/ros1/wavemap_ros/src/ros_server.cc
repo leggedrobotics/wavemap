@@ -198,7 +198,20 @@ void RosServer::advertiseServices(ros::NodeHandle& nh_private) {
                                               wavemap_msgs::FilePath::Response>(
       "load_map", [this](auto& request, auto& response) {
         response.success = loadMap(request.file_path);
+        if (response.success && pipeline_) {
+          pipeline_->runOperations(/*force_run_all=*/true);
+        }
         return true;
+      });
+
+  // Tick operations on a timer so time-based operations (publish_esdf, etc.)
+  // fire even when there are no active sensor inputs (e.g. ESDF-only mode).
+  operations_timer_ = nh_private.createTimer(
+      ros::Duration(1.0),
+      [this](const ros::TimerEvent&) {
+        if (pipeline_) {
+          pipeline_->runOperations();
+        }
       });
 }
 }  // namespace wavemap

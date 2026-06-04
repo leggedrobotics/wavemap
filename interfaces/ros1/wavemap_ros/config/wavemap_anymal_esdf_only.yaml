@@ -1,0 +1,25 @@
+general:
+  world_frame: "map"
+  logging_level: debug
+  allow_reset_map_service: true
+
+map:
+  type: hashed_wavelet_octree
+  min_cell_width: { meters: 0.06 }
+
+map_operations:
+  - type: threshold_map
+    once_every: { seconds: 2.0 }
+  - type: prune_map
+    once_every: { seconds: 10.0 }
+  - type: publish_map
+    once_every: { seconds: 2.0 }
+  - type: publish_esdf
+    once_every: { seconds: 3.0 }
+    max_distance: 4.0
+    occupancy_threshold: 0.0
+    topic: "esdf"
+
+# No measurement_integrators or inputs — node accepts no sensor data.
+# Load the saved map after startup with:
+#   rosservice call /wavemap/load_map "file_path: '/tmp/alma_map.wvmp'"
