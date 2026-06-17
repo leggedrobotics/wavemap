@@ -1,0 +1,85 @@
+general:
+  world_frame: "map"
+  logging_level: debug
+  allow_reset_map_service: true
+
+map:
+  type: hashed_wavelet_octree
+  min_cell_width: { meters: 0.06 }
+
+map_operations:
+  - type: threshold_map
+    once_every: { seconds: 2.0 }
+  - type: prune_map
+    once_every: { seconds: 10.0 }
+  - type: publish_map
+    once_every: { seconds: 2.0 }
+  - type: publish_esdf
+    once_every: { seconds: 3.0 }
+    max_distance: 4.0
+    occupancy_threshold: 0.0
+    topic: "esdf"
+
+measurement_integrators:
+  jt128_lidar_left:
+    projection_model:
+      type: spherical_projector
+      elevation:
+        # JT128 Mini: 128 channels, elevation -4.43 deg to +88.99 deg
+        num_cells: 128
+        min_angle: { degrees: -4.43 }
+        max_angle: { degrees: 88.99 }
+      azimuth:
+        num_cells: 512
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.1 }
+      range_sigma: { meters: 0.02 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.1 }
+      max_range: { meters: 4.0 }
+
+  jt128_lidar_right:
+    projection_model:
+      type: spherical_projector
+      elevation:
+        # JT128 Mini: 128 channels, elevation -4.43 deg to +88.99 deg
+        num_cells: 128
+        min_angle: { degrees: -4.43 }
+        max_angle: { degrees: 88.99 }
+      azimuth:
+        num_cells: 512
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.1 }
+      range_sigma: { meters: 0.02 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.1 }
+      max_range: { meters: 4.0 }
+
+inputs:
+  - type: pointcloud_topic
+    topic_name: "/hesai/lidar_left/self_filtered"
+    topic_type: PointCloud2
+    measurement_integrator_names: jt128_lidar_left
+    undistort_motion: false
+    topic_queue_length: 1
+    max_wait_for_pose: { seconds: 1.0 }
+
+  - type: pointcloud_topic
+    topic_name: "/hesai/lidar_right/self_filtered"
+    topic_type: PointCloud2
+    measurement_integrator_names: jt128_lidar_right
+    undistort_motion: false
+    topic_queue_length: 1
+    max_wait_for_pose: { seconds: 1.0 }
