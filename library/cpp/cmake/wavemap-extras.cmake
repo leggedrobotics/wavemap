@@ -38,7 +38,7 @@ function(set_wavemap_target_properties target)
 
   # General compilation options
   set_target_properties(${target} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  target_compile_options(${target} PUBLIC -march=native)
+  target_compile_options(${target} PUBLIC -march=skylake)
   target_compile_options(${target} PRIVATE
       -Wall -Wextra -Wpedantic -Wsuggest-attribute=const
       -Wno-deprecated-copy -Wno-class-memaccess)
