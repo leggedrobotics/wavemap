@@ -2,13 +2,13 @@
 """Load a saved wavemap at the robot's current base pose.
 
 Reads alma_map_origin.yaml (written by save_map_with_pose.py in sim) and
-publishes a static TF 'wavemap_origin' such that the loaded map has the same
-geometric relationship to the robot as it did at save time.
+publishes a static TF 'map' such that the loaded map has the same geometric
+relationship to the robot as it did at save time.
 
 The offset is projected onto the horizontal plane (roll/pitch/height agnostic):
 only x, y, and yaw are used; z, roll, and pitch are zeroed out.
 
-Requires wavemap_anymal_esdf_only.yaml to have world_frame: "wavemap_origin".
+Requires wavemap_anymal_esdf_only.yaml to have world_frame: "map".
 
 Usage:
     rosrun wavemap_ros load_map_at_base.py
@@ -23,11 +23,12 @@ from tf.transformations import (quaternion_matrix, quaternion_from_matrix,
                                 euler_from_quaternion, quaternion_from_euler)
 from wavemap_msgs.srv import FilePath
 
-MAP_FILE   = os.path.expanduser('~/wavemap/alma_map.wvmp')
-POSE_FILE  = os.path.expanduser('~/wavemap/alma_map_origin.yaml')
-WORLD_FRAME = 'odom'          # real robot's world frame
+_PKG_DIR   = os.path.join(os.path.dirname(__file__), '..')
+MAP_FILE   = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map.wvmp'))
+POSE_FILE  = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map_origin.yaml'))
+WORLD_FRAME = 'odom'   # real robot's odometry frame
 BASE_FRAME  = 'base'
-WAVEMAP_FRAME = 'wavemap_origin'  # must match world_frame in esdf_only yaml
+WAVEMAP_FRAME = 'map'  # must match world_frame in esdf_only yaml
 
 
 def pose_to_matrix(t, q):
@@ -95,7 +96,7 @@ def main():
 
     broadcaster = tf2_ros.StaticTransformBroadcaster()
     broadcaster.sendTransform(msg)
-    rospy.loginfo(f'Published TF: {WORLD_FRAME} -> {WAVEMAP_FRAME} '
+    rospy.loginfo(f'Published static TF: {WORLD_FRAME} -> {WAVEMAP_FRAME} '
                   f'at ({tx:.3f}, {ty:.3f}, 0.0), yaw={np.degrees(yaw):.1f} deg')
     rospy.sleep(0.5)  # let TF propagate before loading
 

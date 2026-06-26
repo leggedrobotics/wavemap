@@ -13,15 +13,15 @@ import rospy
 import tf2_ros
 from wavemap_msgs.srv import FilePath
 
-MAP_FILE   = os.path.expanduser('~/wavemap/alma_map.wvmp')
-POSE_FILE  = os.path.expanduser('~/wavemap/alma_map_origin.yaml')
+_PKG_DIR   = os.path.join(os.path.dirname(__file__), '..')
+MAP_FILE   = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map.wvmp'))
+POSE_FILE  = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map_origin.yaml'))
 WORLD_FRAME = 'map'
 BASE_FRAME  = 'base'
 
 
 def main():
     rospy.init_node('save_map_with_pose')
-    os.makedirs(os.path.dirname(MAP_FILE), exist_ok=True)
 
     buf = tf2_ros.Buffer()
     tf2_ros.TransformListener(buf)
