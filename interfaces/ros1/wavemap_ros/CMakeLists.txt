@@ -74,3 +74,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 # Mark config files for installation
 install(DIRECTORY config/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config)
+# Mark Python scripts for installation
+catkin_install_python(PROGRAMS
+    scripts/save_map_with_pose.py
+    scripts/load_map_at_base.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

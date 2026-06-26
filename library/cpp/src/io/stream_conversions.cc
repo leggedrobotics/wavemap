@@ -312,7 +312,17 @@ bool streamToMap(std::istream& istream, HashedWaveletOctree::Ptr& map) {
   config.min_log_odds = hashed_wavelet_octree_header.min_log_odds;
   config.max_log_odds = hashed_wavelet_octree_header.max_log_odds;
   config.tree_height = hashed_wavelet_octree_header.tree_height;
-  map = std::make_shared<HashedWaveletOctree>(config);
+  // When an existing map with compatible config is provided, reuse its object
+  // (clear and repopulate) so that all shared_ptr copies held by Pipeline and
+  // map operations automatically see the loaded data without pointer updates.
+  if (map && map->getConfig().min_cell_width == config.min_cell_width &&
+      map->getConfig().min_log_odds == config.min_log_odds &&
+      map->getConfig().max_log_odds == config.max_log_odds &&
+      map->getConfig().tree_height == config.tree_height) {
+    map->clear();
+  } else {
+    map = std::make_shared<HashedWaveletOctree>(config);
+  }
 
   // Deserialize all the blocks
   for (size_t block_idx = 0;
