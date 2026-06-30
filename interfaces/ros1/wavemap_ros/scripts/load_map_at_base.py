@@ -2,13 +2,16 @@
 """Load a saved wavemap at the robot's current base pose.
 
 Reads alma_map_origin.yaml (written by save_map_with_pose.py in sim) and
-publishes a static TF 'map' such that the loaded map has the same geometric
-relationship to the robot as it did at save time.
+publishes a static TF 'wavemap_origin' (child of 'map') such that the loaded
+map has the same geometric relationship to the robot as it did at save time.
+
+Publishing as a child of 'map' avoids a TF cycle with the sim/SLAM stack
+that already owns the map→odom edge.
 
 The offset is projected onto the horizontal plane (roll/pitch/height agnostic):
 only x, y, and yaw are used; z, roll, and pitch are zeroed out.
 
-Requires wavemap_anymal_esdf_only.yaml to have world_frame: "map".
+Requires wavemap_anymal_esdf_only.yaml to have world_frame: "wavemap_origin".
 
 Usage:
     rosrun wavemap_ros load_map_at_base.py
@@ -26,9 +29,9 @@ from wavemap_msgs.srv import FilePath
 _PKG_DIR   = os.path.join(os.path.dirname(__file__), '..')
 MAP_FILE   = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map.wvmp'))
 POSE_FILE  = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map_origin.yaml'))
-WORLD_FRAME = 'odom'   # real robot's odometry frame
-BASE_FRAME  = 'base'
-WAVEMAP_FRAME = 'map'  # must match world_frame in esdf_only yaml
+WORLD_FRAME   = 'map'            # same frame the save script used
+BASE_FRAME    = 'base'
+WAVEMAP_FRAME = 'wavemap_origin' # child of map — no TF cycle; must match world_frame in esdf_only yaml
 
 
 def pose_to_matrix(t, q):
@@ -65,7 +68,7 @@ def main():
     tn = T.transform.translation
     rn = T.transform.rotation
 
-    # T_odom_wavemap = T_odom_base_real * T_map_base_sim^{-1}
+    # T_map_wavemap_origin = T_map_base_now * T_map_base_saved^{-1}
     # This makes the robot-to-map relationship identical to save time.
     M_real = pose_to_matrix(
         [tn.x, tn.y, tn.z],

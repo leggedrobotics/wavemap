@@ -1,5 +1,5 @@
 general:
-  world_frame: "map"
+  world_frame: "wavemap_origin"
   logging_level: debug
   allow_reset_map_service: true
 
