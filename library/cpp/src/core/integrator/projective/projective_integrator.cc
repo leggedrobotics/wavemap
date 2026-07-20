@@ -57,6 +57,12 @@ void ProjectiveIntegrator::importPointcloud(
   posed_range_image_->setPose(pointcloud.getPose());
   beam_offset_image_->resetToInitialValue();
 
+  // DEBUG (temporary): re-added to verify, against live sim data, that
+  // switching to lidar_channel_projector actually drops elevation-bin
+  // collisions to ~0 (previously ~6300/frame with spherical_projector's
+  // uniform elevation grid on the JT128's irregularly spaced channels).
+  int debug_collision_count = 0;
+
   // Import all the points
   for (const auto& C_point : pointcloud.getPointsLocal()) {
     // Filter out noisy points and compute point's range
@@ -81,11 +87,21 @@ void ProjectiveIntegrator::importPointcloud(
     const FloatingPoint range = sensor_coordinates.depth;
     const FloatingPoint old_range_value =
         posed_range_image_->at(range_image_index);
+    if (config_.min_range <= old_range_value) {
+      // DEBUG: this pixel already received a point earlier in this same
+      // frame -> a genuine elevation-bin collision.
+      ++debug_collision_count;
+    }
     if (old_range_value < config_.min_range || range < old_range_value) {
       posed_range_image_->at(range_image_index) = range;
       beam_offset_image_->at(range_image_index) = beam_to_pixel_offset;
     }
   }
+
+  LOG_EVERY_N(INFO, 20) << "[wavemap DEBUG] " << debug_collision_count
+                       << " pixel collisions this frame ("
+                       << posed_range_image_->getNumRows() << "x"
+                       << posed_range_image_->getNumColumns() << " range image)";
 }
 
 void ProjectiveIntegrator::importRangeImage(
