@@ -32,8 +32,7 @@ measurement_integrators:
       azimuth:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)
-        # -- too slow, so we reduce it in sim to 360
-        num_cells: 360
+        num_cells: 900
         min_angle: { degrees: -180.0 }
         max_angle: { degrees: 180.0 }
     measurement_model:
@@ -64,8 +63,7 @@ measurement_integrators:
       azimuth:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)
-        # -- too slow, so we reduce it in sim to 360
-        num_cells: 360
+        num_cells: 900
         min_angle: { degrees: -180.0 }
         max_angle: { degrees: 180.0 }
     measurement_model:
