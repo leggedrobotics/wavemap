@@ -41,7 +41,13 @@ measurement_integrators:
       scaling_occupied: 0.4
     integration_method:
       type: hashed_wavelet_integrator
-      min_range: { meters: 0.1 }
+      # Must exceed 6*range_sigma (0.12m): below that, phantom range-image
+      # pixels from elevation rows the JT128 never hits (read as range=0)
+      # pass the min_range cutoff but aren't yet caught by continuous_beam's
+      # own fully_in_unknown_space check, leaking a small positive occupied
+      # update on every azimuth column, every frame -> a ring of occupied
+      # cells that accumulates right around the sensor.
+      min_range: { meters: 0.15 }
       max_range: { meters: 4.0 }
 
   jt128_lidar_right:
@@ -64,7 +70,13 @@ measurement_integrators:
       scaling_occupied: 0.4
     integration_method:
       type: hashed_wavelet_integrator
-      min_range: { meters: 0.1 }
+      # Must exceed 6*range_sigma (0.12m): below that, phantom range-image
+      # pixels from elevation rows the JT128 never hits (read as range=0)
+      # pass the min_range cutoff but aren't yet caught by continuous_beam's
+      # own fully_in_unknown_space check, leaking a small positive occupied
+      # update on every azimuth column, every frame -> a ring of occupied
+      # cells that accumulates right around the sensor.
+      min_range: { meters: 0.15 }
       max_range: { meters: 4.0 }
 
 inputs:
