@@ -23,12 +23,16 @@ map_operations:
 measurement_integrators:
   jt128_lidar_left:
     projection_model:
-      type: spherical_projector
-      elevation:
-        # JT128 Mini: 128 channels, elevation -4.43 deg to +88.99 deg
-        num_cells: 128
-        min_angle: { degrees: -4.43 }
-        max_angle: { degrees: 88.99 }
+      type: lidar_channel_projector
+      # JT128 Mini's 128 channels are not evenly spaced, so a uniform
+      # spherical_projector elevation grid causes ~15/128 rows to collide
+      # (2 real channels rounding to the same row) and ~15/128 rows to be
+      # permanently empty (no channel rounds there), every frame. This
+      # projector instead loads each channel's real elevation angle and
+      # looks it up via binary search, so every channel gets its own exact
+      # row -- see JT128_default_angle.csv (also used as the real driver's
+      # PTC-correction fallback table, see alma_jt128_dual.yaml).
+      elevation_angles_file: "$(find wavemap_ros)/config/sensor_configs/JT128_default_angle.csv"
       azimuth:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)
@@ -55,12 +59,16 @@ measurement_integrators:
 
   jt128_lidar_right:
     projection_model:
-      type: spherical_projector
-      elevation:
-        # JT128 Mini: 128 channels, elevation -4.43 deg to +88.99 deg
-        num_cells: 128
-        min_angle: { degrees: -4.43 }
-        max_angle: { degrees: 88.99 }
+      type: lidar_channel_projector
+      # JT128 Mini's 128 channels are not evenly spaced, so a uniform
+      # spherical_projector elevation grid causes ~15/128 rows to collide
+      # (2 real channels rounding to the same row) and ~15/128 rows to be
+      # permanently empty (no channel rounds there), every frame. This
+      # projector instead loads each channel's real elevation angle and
+      # looks it up via binary search, so every channel gets its own exact
+      # row -- see JT128_default_angle.csv (also used as the real driver's
+      # PTC-correction fallback table, see alma_jt128_dual.yaml).
+      elevation_angles_file: "$(find wavemap_ros)/config/sensor_configs/JT128_default_angle.csv"
       azimuth:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)

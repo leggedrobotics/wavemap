@@ -16,11 +16,13 @@ struct ProjectorType : TypeSelector<ProjectorType> {
   enum Id : TypeId {
     kSphericalProjector,
     kOusterProjector,
-    kPinholeCameraProjector
+    kPinholeCameraProjector,
+    kLidarChannelProjector
   };
 
   static constexpr std::array names = {
-      "spherical_projector", "ouster_projector", "pinhole_camera_projector"};
+      "spherical_projector", "ouster_projector", "pinhole_camera_projector",
+      "lidar_channel_projector"};
 };
 
 class ProjectorBase {
@@ -81,7 +83,11 @@ class ProjectorBase {
   imageToNearestIndicesAndOffsets(
       const ImageCoordinates& image_coordinates) const;
 
-  ImageCoordinates indexToImage(const Index2D& index) const;
+  // NOTE: Not pure virtual -- the default implementation assumes a constant
+  //       per-axis angular/pixel pitch (index_to_image_scale_factor_). Override
+  //       it in projectors whose axes have irregular (non-uniform) spacing,
+  //       such as LidarChannelProjector.
+  virtual ImageCoordinates indexToImage(const Index2D& index) const;
 
   // Compute the error norm in the image plane based on an offset vector (in
   // image plane) and a linearization point
@@ -121,7 +127,9 @@ class ProjectorBase {
   const ImageCoordinates min_image_coordinates_;
   const ImageCoordinates max_image_coordinates_;
 
-  Vector2D imageToIndexReal(const ImageCoordinates& image_coordinates) const;
+  // NOTE: Not pure virtual, see indexToImage's NOTE above.
+  virtual Vector2D imageToIndexReal(
+      const ImageCoordinates& image_coordinates) const;
 
   // Give test 'imageToNearestIndicesAndOffsets' of gtest test suite
   // 'Image2DProjectorTypedTest' access to private methods and members

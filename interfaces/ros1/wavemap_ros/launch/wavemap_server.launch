@@ -38,7 +38,7 @@
           type="ros_server"
           output="screen"
           launch-prefix="$(arg launch_prefix)">
-      <rosparam file="$(arg param_file)"/>
+      <rosparam file="$(arg param_file)" subst_value="true"/>
     </node>
   </group>
 

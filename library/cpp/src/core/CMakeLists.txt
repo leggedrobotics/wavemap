@@ -20,6 +20,7 @@ target_sources(wavemap_core PRIVATE
     integrator/measurement_model/continuous_ray.cc
     integrator/measurement_model/measurement_model_factory.cc
     integrator/projection_model/circular_projector.cc
+    integrator/projection_model/lidar_channel_projector.cc
     integrator/projection_model/ouster_projector.cc
     integrator/projection_model/pinhole_camera_projector.cc
     integrator/projection_model/spherical_projector.cc

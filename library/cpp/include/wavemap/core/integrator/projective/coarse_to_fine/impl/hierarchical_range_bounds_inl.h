@@ -281,9 +281,16 @@ inline UpdateType HierarchicalRangeBounds::getUpdateType(
 inline Index2D HierarchicalRangeBounds::computeImageToPyramidScaleFactor(
     const ProjectorBase* projector) {
   if (projector) {
-    const Vector2D stride = (projector->indexToImage(Index2D::Ones()) -
+    // NOTE: Averaged over the full axis (last index vs. first) rather than
+    //       sampled from a single adjacent index pair, so this remains
+    //       representative for projectors with irregular (non-uniform) axis
+    //       spacing (e.g. LidarChannelProjector). For axes with constant
+    //       pitch, this yields the exact same result as before.
+    const Index2D last_idx = projector->getDimensions() - Index2D::Ones();
+    const Vector2D stride = (projector->indexToImage(last_idx) -
                              projector->indexToImage(Index2D::Zero()))
-                                .cwiseAbs();
+                                .cwiseAbs()
+                                .cwiseQuotient(last_idx.cast<FloatingPoint>());
     return (stride / stride.minCoeff()).cwiseMin(2).cast<IndexElement>();
   } else {
     return Index2D::Ones();

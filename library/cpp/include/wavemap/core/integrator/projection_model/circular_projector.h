@@ -44,6 +44,14 @@ class CircularProjector {
     return {std::cos(angle), std::sin(angle)};
   }
 
+  // Real-valued (fractional) index, i.e. before rounding to the nearest
+  // pixel. Useful for composing with other axes whose spacing is irregular
+  // (see LidarChannelProjector), where the combined image-to-index
+  // conversion can no longer be expressed as a single vectorized operation.
+  FloatingPoint angleToRealIndex(FloatingPoint angle) const {
+    return angleToScaledAngle(angle);
+  }
+
   IndexElement angleToNearestIndex(FloatingPoint angle) const {
     return static_cast<IndexElement>(std::round(angleToScaledAngle(angle)));
   }

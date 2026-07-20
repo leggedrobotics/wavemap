@@ -1,5 +1,6 @@
 #include "wavemap/core/integrator/projection_model/projector_factory.h"
 
+#include "wavemap/core/integrator/projection_model/lidar_channel_projector.h"
 #include "wavemap/core/integrator/projection_model/ouster_projector.h"
 #include "wavemap/core/integrator/projection_model/pinhole_camera_projector.h"
 #include "wavemap/core/integrator/projection_model/spherical_projector.h"
@@ -52,6 +53,16 @@ std::unique_ptr<ProjectorBase> wavemap::ProjectorFactory::create(
         return std::make_unique<PinholeCameraProjector>(config.value());
       } else {
         LOG(ERROR) << "Pinhole projector config could not be loaded.";
+        return nullptr;
+      }
+    }
+    case ProjectorType::kLidarChannelProjector: {
+      if (const auto config =
+              LidarChannelProjectorConfig::from(params, "projection_model");
+          config) {
+        return std::make_unique<LidarChannelProjector>(config.value());
+      } else {
+        LOG(ERROR) << "Lidar channel projector config could not be loaded.";
         return nullptr;
       }
     }
