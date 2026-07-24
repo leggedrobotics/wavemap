@@ -13,9 +13,10 @@ Vertical alignment (z) is anchored to the real foot contact height so that
 map voxels land on the actual floor surface, not a sim-height proxy.
 Roll and pitch are zeroed.
 
-Optional YAML key 'floor_z_in_wavemap' (default 0.0): the z of the ground
-surface in wavemap_origin frame from the sim run. Non-zero only if wavemap_origin
-was mounted above or below ground level in sim.
+Optional YAML key 'floor_z_in_wavemap' (default 0.0): the foot-anchored ground
+z in the world frame at save time, written by save_map_with_pose.py. Defaults
+to 0.0 only for maps saved before this key existed, or if foot frames were
+unavailable at save time.
 
 Requires wavemap_anymal_esdf_only.yaml to have world_frame: "wavemap_origin".
 
@@ -105,8 +106,8 @@ def main():
     q_flat = quaternion_from_euler(0.0, 0.0, yaw)
 
     # Vertical: anchor map floor to real foot-contact height.
-    # floor_z_in_wavemap is where the ground sits in wavemap_origin coords at
-    # save time (0.0 when wavemap_origin was at ground level in sim — the default).
+    # floor_z_in_wavemap is the foot-anchored ground z (in WORLD_FRAME) recorded
+    # by save_map_with_pose.py at save time; defaults to 0.0 for older map files.
     floor_z_in_wavemap = float(o.get('floor_z_in_wavemap', 0.0))
 
     ground_z = lookup_ground_z(buf, WORLD_FRAME, FOOT_FRAMES)

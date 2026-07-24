@@ -9,6 +9,7 @@ Usage:
 """
 import os
 import yaml
+import numpy as np
 import rospy
 import tf2_ros
 from wavemap_msgs.srv import FilePath
@@ -18,6 +19,23 @@ MAP_FILE   = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map.wvmp'))
 POSE_FILE  = os.path.realpath(os.path.join(_PKG_DIR, 'maps', 'alma_map_origin.yaml'))
 WORLD_FRAME = 'map'
 BASE_FRAME  = 'base'
+
+# ANYmal foot frames used to anchor the map floor to the real contact surface.
+# Must match FOOT_FRAMES in load_map_at_base.py.
+FOOT_FRAMES = ['LF_FOOT', 'RF_FOOT', 'LH_FOOT', 'RH_FOOT']
+
+
+def lookup_ground_z(buf, world_frame, foot_frames):
+    """Return mean foot-contact z in world_frame, or None if unavailable."""
+    zs = []
+    for ff in foot_frames:
+        try:
+            ft = buf.lookup_transform(world_frame, ff,
+                                      rospy.Time(0), rospy.Duration(1.0))
+            zs.append(ft.transform.translation.z)
+        except tf2_ros.TransformException:
+            pass
+    return float(np.mean(zs)) if zs else None
 
 
 def main():
@@ -36,6 +54,14 @@ def main():
 
     t, r = T.transform.translation, T.transform.rotation
 
+    floor_z_in_wavemap = lookup_ground_z(buf, WORLD_FRAME, FOOT_FRAMES)
+    if floor_z_in_wavemap is None:
+        rospy.logwarn('Foot frames unavailable; defaulting floor_z_in_wavemap to 0.0 '
+                      '(correct only if the world frame origin is at ground level)')
+        floor_z_in_wavemap = 0.0
+    else:
+        rospy.loginfo(f'Foot-anchored ground z in {WORLD_FRAME}: {floor_z_in_wavemap:.3f} m')
+
     rospy.wait_for_service('/wavemap/save_map', timeout=10.0)
     resp = rospy.ServiceProxy('/wavemap/save_map', FilePath)(MAP_FILE)
     if not resp.success:
@@ -44,7 +70,8 @@ def main():
 
     with open(POSE_FILE, 'w') as f:
         yaml.dump({'x': t.x, 'y': t.y, 'z': t.z,
-                   'qx': r.x, 'qy': r.y, 'qz': r.z, 'qw': r.w}, f)
+                   'qx': r.x, 'qy': r.y, 'qz': r.z, 'qw': r.w,
+                   'floor_z_in_wavemap': floor_z_in_wavemap}, f)
 
     rospy.loginfo(f'Map  -> {MAP_FILE}')
     rospy.loginfo(f'Pose -> {POSE_FILE}')
