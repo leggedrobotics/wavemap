@@ -10,12 +10,14 @@ DECLARE_CONFIG_MEMBERS(PublishEsdfOperationConfig,
                       (once_every)
                       (max_distance)
                       (occupancy_threshold)
+                      (tree_height)
                       (topic));
 
 bool PublishEsdfOperationConfig::isValid(bool verbose) const {
   bool all_valid = true;
   all_valid &= IS_PARAM_GT(once_every, 0.f, verbose);
   all_valid &= IS_PARAM_GT(max_distance, 0.f, verbose);
+  all_valid &= IS_PARAM_GE(tree_height, 0, verbose);
   all_valid &= IS_PARAM_NE(topic, "", verbose);
   return all_valid;
 }
@@ -53,8 +55,10 @@ void PublishEsdfOperation::publishEsdf(const ros::Time& current_time) {
     return;
   }
 
-  const QuasiEuclideanSDFGenerator sdf_generator{config_.max_distance,
-                                                 config_.occupancy_threshold};
+  const IndexElement tree_height =
+      std::min(config_.tree_height, hashed_map->getTreeHeight() - 1);
+  const QuasiEuclideanSDFGenerator sdf_generator{
+      config_.max_distance, config_.occupancy_threshold, tree_height};
   const HashedBlocks esdf = sdf_generator.generate(*hashed_map);
 
   wavemap_msgs::Map map_msg;

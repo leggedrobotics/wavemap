@@ -73,10 +73,16 @@ Index3D HashedWaveletOctree::getMaxIndex() const {
 
 void HashedWaveletOctree::forEachLeaf(
     MapBase::IndexedLeafVisitorFunction visitor_fn) const {
-  forEachBlock(
-      [&visitor_fn](const BlockIndex& block_index, const Block& block) {
-        block.forEachLeaf(block_index, visitor_fn);
-      });
+  forEachLeaf(visitor_fn, 0);
+}
+
+void HashedWaveletOctree::forEachLeaf(
+    MapBase::IndexedLeafVisitorFunction visitor_fn,
+    IndexElement termination_height) const {
+  forEachBlock([&visitor_fn, termination_height](const BlockIndex& block_index,
+                                                 const Block& block) {
+    block.forEachLeaf(block_index, visitor_fn, termination_height);
+  });
 }
 
 }  // namespace wavemap

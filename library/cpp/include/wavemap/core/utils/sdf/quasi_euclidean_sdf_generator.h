@@ -13,13 +13,21 @@ class QuasiEuclideanSDFGenerator {
   static constexpr FloatingPoint kMaxRelativeUnderEstimate = 1e-2f;
   static constexpr FloatingPoint kMaxRelativeOverEstimate = 0.125f + 1e-2f;
 
+  // NOTE: tree_height controls the octree level at which the SDF is
+  //       generated. Height 0 (the default) generates the SDF at the map's
+  //       finest resolution (min_cell_width); each level above that doubles
+  //       the cell width, trading resolution for speed.
   explicit QuasiEuclideanSDFGenerator(FloatingPoint max_distance = 2.f,
-                                      FloatingPoint occupancy_threshold = 0.f)
-      : max_distance_(max_distance), classifier_(occupancy_threshold) {}
+                                      FloatingPoint occupancy_threshold = 0.f,
+                                      IndexElement tree_height = 0)
+      : max_distance_(max_distance),
+        classifier_(occupancy_threshold),
+        tree_height_(tree_height) {}
 
   HashedBlocks generate(const HashedWaveletOctree& occupancy_map) const;
 
   FloatingPoint getMaxDistance() const { return max_distance_; }
+  IndexElement getTreeHeight() const { return tree_height_; }
 
  private:
   inline static const auto kNeighborIndexOffsets =
@@ -27,6 +35,7 @@ class QuasiEuclideanSDFGenerator {
 
   const FloatingPoint max_distance_;
   const OccupancyClassifier classifier_;
+  const IndexElement tree_height_;
 
   void seed(const HashedWaveletOctree& occupancy_map, HashedBlocks& sdf,
             BucketQueue<Index3D>& open_queue) const;

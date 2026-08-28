@@ -12,7 +12,7 @@
 
 namespace wavemap {
 struct PublishEsdfOperationConfig
-    : public ConfigBase<PublishEsdfOperationConfig, 4> {
+    : public ConfigBase<PublishEsdfOperationConfig, 5> {
   //! Time period controlling how often the ESDF is published.
   Seconds<FloatingPoint> once_every = 2.f;
 
@@ -21,6 +21,11 @@ struct PublishEsdfOperationConfig
 
   //! Log-odds threshold above which cells are treated as occupied.
   FloatingPoint occupancy_threshold = 0.f;
+
+  //! Octree height at which the ESDF is generated. 0 (default) uses the
+  //! map's finest resolution (min_cell_width); each level above that
+  //! doubles the cell width, trading resolution for speed.
+  IndexElement tree_height = 0;
 
   //! Name of the topic the ESDF map will be published on.
   std::string topic = "esdf";

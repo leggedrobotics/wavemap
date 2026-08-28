@@ -114,6 +114,10 @@ class HashedWaveletOctree : public MapBase {
 
   void forEachLeaf(
       typename MapBase::IndexedLeafVisitorFunction visitor_fn) const override;
+  // Same as above, but truncates traversal at the given tree height instead
+  // of always descending to the true leaves (height 0).
+  void forEachLeaf(typename MapBase::IndexedLeafVisitorFunction visitor_fn,
+                   IndexElement termination_height) const;
 
   BlockIndex indexToBlockIndex(const OctreeIndex& node_index) const;
   CellIndex indexToCellIndex(OctreeIndex index) const;

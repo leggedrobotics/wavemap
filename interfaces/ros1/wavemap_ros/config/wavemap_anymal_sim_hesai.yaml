@@ -15,9 +15,13 @@ map_operations:
   - type: publish_map
     once_every: { seconds: 2.0 }
   - type: publish_esdf
-    once_every: { seconds: 3.0 }
+    once_every: { seconds: 1.0 }
     max_distance: 4.0
     occupancy_threshold: 0.0
+    # Octree height at which the ESDF is computed. 0 = finest resolution
+    # (0.06m, matches map.min_cell_width). Each level up doubles the cell
+    # width (1 -> 0.12m, 2 -> 0.24m, ...), trading resolution for speed.
+    tree_height: 0
     topic: "esdf"
 
 measurement_integrators:
