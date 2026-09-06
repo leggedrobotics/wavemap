@@ -1,0 +1,98 @@
+# Floor-only variant of wavemap_anymal_real_hesai.yaml: reads the
+# .../self_filtered/floor_only topics (see wavemap_floor_filter.launch,
+# alma_realtime_esdf's floor_filter_node), which already exclude everything
+# at or above base.z - 0.5 -- so wavemap only ever integrates the static
+# floor. Pairs with alma_realtime_esdf (override_wavemap_topics off)
+# covering everything above that height; esdf_merge_node combines the two
+# onto the controller's actual /wavemap/esdf and /wavemap/map topics -- this
+# node's own output is deliberately relocated to .../esdf_floor and
+# .../map_floor below so it doesn't collide with the merge node's output on
+# the canonical names. max_range/max_distance are tightened to 2.0m and the
+# map is periodically cropped to the same 2m radius around the robot
+# (crop_map below), matching alma_realtime_esdf's half_extent_xy, since
+# neither needs to see/keep anything farther than the controller's local
+# obstacle box.
+
+general:
+  world_frame: "odom"
+  logging_level: debug
+  allow_reset_map_service: true
+
+map:
+  type: hashed_wavelet_octree
+  min_cell_width: { meters: 0.06 }
+
+map_operations:
+  - type: threshold_map
+    once_every: { seconds: 2.0 }
+  - type: crop_map
+    once_every: { seconds: 2.0 }
+    body_frame: "base"
+    remove_blocks_beyond_distance: { meters: 2.0 }
+  - type: prune_map
+    once_every: { seconds: 10.0 }
+  - type: publish_map
+    once_every: { seconds: 2.0 }
+    topic: "map_floor"
+  - type: publish_esdf
+    once_every: { seconds: 3.0 }
+    max_distance: 2.0
+    occupancy_threshold: 0.0
+    tree_height: 0
+    topic: "esdf_floor"
+
+measurement_integrators:
+  jt128_lidar_left:
+    projection_model:
+      type: lidar_channel_projector
+      elevation_angles_file: "$(find wavemap_ros)/config/sensor_configs/JT128_default_angle.csv"
+      azimuth:
+        num_cells: 900
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.1 }
+      range_sigma: { meters: 0.02 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.15 }
+      max_range: { meters: 2.0 }
+
+  jt128_lidar_right:
+    projection_model:
+      type: lidar_channel_projector
+      elevation_angles_file: "$(find wavemap_ros)/config/sensor_configs/JT128_default_angle.csv"
+      azimuth:
+        num_cells: 900
+        min_angle: { degrees: -180.0 }
+        max_angle: { degrees: 180.0 }
+    measurement_model:
+      type: continuous_beam
+      angle_sigma: { degrees: 0.1 }
+      range_sigma: { meters: 0.02 }
+      scaling_free: 0.2
+      scaling_occupied: 0.4
+    integration_method:
+      type: hashed_wavelet_integrator
+      min_range: { meters: 0.15 }
+      max_range: { meters: 2.0 }
+
+inputs:
+  - type: pointcloud_topic
+    topic_name: "/hesai/lidar_left/self_filtered/floor_only"
+    topic_type: PointCloud2
+    measurement_integrator_names: jt128_lidar_left
+    undistort_motion: false
+    topic_queue_length: 1
+    max_wait_for_pose: { seconds: 1.0 }
+
+  - type: pointcloud_topic
+    topic_name: "/hesai/lidar_right/self_filtered/floor_only"
+    topic_type: PointCloud2
+    measurement_integrator_names: jt128_lidar_right
+    undistort_motion: false
+    topic_queue_length: 1
+    max_wait_for_pose: { seconds: 1.0 }
