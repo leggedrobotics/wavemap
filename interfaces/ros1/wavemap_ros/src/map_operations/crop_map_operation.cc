@@ -46,13 +46,13 @@ void CropMapOperation::run(bool force_run) {
   }
 
   Transformation3D T_W_B;
-  if (!transformer_->lookupTransform(world_frame_, config_.body_frame,
-                                     current_time, T_W_B)) {
+  if (!transformer_->lookupLatestTransform(world_frame_, config_.body_frame,
+                                           T_W_B)) {
     ROS_WARN_STREAM(
         "Could not look up center point for map cropping. TF lookup of "
         "body_frame \""
         << config_.body_frame << "\" w.r.t. world_frame \"" << world_frame_
-        << "\" at time " << current_time << " failed.");
+        << "\" failed.");
     return;
   }
 
