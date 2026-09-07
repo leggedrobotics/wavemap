@@ -20,7 +20,7 @@ map_operations:
     once_every: { seconds: 2.0 }
   - type: publish_esdf
     once_every: { seconds: 2.0 }
-    max_distance: 3.0
+    max_distance: 2.0
     occupancy_threshold: 0.0
     # Octree height at which the ESDF is computed. 0 = finest resolution
     # (0.06m, matches map.min_cell_width). Each level up doubles the cell
@@ -45,7 +45,7 @@ measurement_integrators:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)
         # -- too slow, so we reduce it in sim to 360
-        num_cells: 360
+        num_cells: 900
         min_angle: { degrees: -180.0 }
         max_angle: { degrees: 180.0 }
     measurement_model:
@@ -81,7 +81,7 @@ measurement_integrators:
         # JT128 Mini @ 10 Hz: 900 unique azimuth samples/revolution (0.4 deg
         # resolution, see jt128.csv / dynaarm_jt128.urdf.xacro samples=115200)
         # -- too slow, so we reduce it in sim to 360
-        num_cells: 360
+        num_cells: 900
         min_angle: { degrees: -180.0 }
         max_angle: { degrees: 180.0 }
     measurement_model:

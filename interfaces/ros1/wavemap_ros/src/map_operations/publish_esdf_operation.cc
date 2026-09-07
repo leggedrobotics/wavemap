@@ -59,12 +59,25 @@ void PublishEsdfOperation::publishEsdf(const ros::Time& current_time) {
       std::min(config_.tree_height, hashed_map->getTreeHeight() - 1);
   const QuasiEuclideanSDFGenerator sdf_generator{
       config_.max_distance, config_.occupancy_threshold, tree_height};
+
+  // DEBUG (temporary): split generate() vs message-build vs publish() cost to
+  // determine whether the ~1-3s stall on the npc is SDF computation or the
+  // ROS publish/serialization step.
+  const ros::WallTime t0 = ros::WallTime::now();
   const HashedBlocks esdf = sdf_generator.generate(*hashed_map);
+  const ros::WallTime t1 = ros::WallTime::now();
 
   wavemap_msgs::Map map_msg;
   map_msg.header.frame_id = world_frame_;
   map_msg.header.stamp = current_time;
   convert::mapToRosMsg(esdf, map_msg.hashed_blocks.emplace_back());
+  const ros::WallTime t2 = ros::WallTime::now();
   esdf_pub_.publish(map_msg);
+  const ros::WallTime t3 = ros::WallTime::now();
+  ROS_WARN_STREAM(
+      "[wavemap DEBUG] publish_esdf timing: generate="
+      << (t1 - t0).toSec() << "s, mapToRosMsg=" << (t2 - t1).toSec()
+      << "s, publish=" << (t3 - t2).toSec() << "s, total="
+      << (t3 - t0).toSec() << "s");
 }
 }  // namespace wavemap
