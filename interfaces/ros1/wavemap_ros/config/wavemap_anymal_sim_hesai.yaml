@@ -10,13 +10,17 @@ map:
 map_operations:
   - type: threshold_map
     once_every: { seconds: 2.0 }
+  - type: crop_map
+    once_every: { seconds: 2.0 }
+    body_frame: "base"
+    remove_blocks_beyond_distance: { meters: 3.0 }
   - type: prune_map
     once_every: { seconds: 10.0 }
   - type: publish_map
     once_every: { seconds: 2.0 }
   - type: publish_esdf
-    once_every: { seconds: 1.0 }
-    max_distance: 4.0
+    once_every: { seconds: 2.0 }
+    max_distance: 3.0
     occupancy_threshold: 0.0
     # Octree height at which the ESDF is computed. 0 = finest resolution
     # (0.06m, matches map.min_cell_width). Each level up doubles the cell
@@ -59,7 +63,7 @@ measurement_integrators:
       # update on every azimuth column, every frame -> a ring of occupied
       # cells that accumulates right around the sensor.
       min_range: { meters: 0.15 }
-      max_range: { meters: 4.0 }
+      max_range: { meters: 3.0 }
 
   jt128_lidar_right:
     projection_model:
@@ -95,7 +99,7 @@ measurement_integrators:
       # update on every azimuth column, every frame -> a ring of occupied
       # cells that accumulates right around the sensor.
       min_range: { meters: 0.15 }
-      max_range: { meters: 4.0 }
+      max_range: { meters: 3.0 }
 
 inputs:
   - type: pointcloud_topic
